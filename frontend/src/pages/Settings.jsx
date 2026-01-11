@@ -29,7 +29,7 @@ export default function Settings() {
 
     setLoading(true)
     try {
-      await api.post("/admin/settings/password", { password })
+      await api.post("api/admin/settings/password", { password })
       alert("Password updated successfully")
       setPassword("")
     } catch {
@@ -42,7 +42,7 @@ export default function Settings() {
   const toggle2FA = async () => {
     setLoading(true)
     try {
-      await api.post("/admin/settings/2fa/toggle")
+      await api.post("api/admin/settings/2fa/toggle")
       setTwoFA(!twoFA)
       alert("2FA updated")
     } catch {

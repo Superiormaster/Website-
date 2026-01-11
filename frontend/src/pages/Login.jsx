@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const res = await api.post("/admin/login", { username, password },   { headers: { "Content-Type": "application/json" } });
+      const res = await api.post("api/admin/login", { username, password },   { headers: { "Content-Type": "application/json" } });
       const token = res.data.token
 
       localStorage.setItem("token", token)
@@ -25,7 +25,7 @@ export default function Login() {
       const decoded = jwtDecode(res.data.token);
       setUser(decoded);
 
-      navigate("/admin");
+      navigate("api/admin");
     } catch (err) {
       console.error(err);
       alert("Invalid username or password");

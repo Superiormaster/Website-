@@ -7,7 +7,7 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    api.get("/admin/messages")
+    api.get("api/admin/messages")
       .then(res => setMessages(res.data));
   }, []);
 

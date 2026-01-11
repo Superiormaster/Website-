@@ -23,7 +23,7 @@ export default function Dashboard() {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const res = await api.get("/admin/dashboard");
+        const res = await api.get("/api/admin/dashboard");
         setStats(res.data);
       } catch (err) {
         console.error(err);
@@ -40,7 +40,7 @@ export default function Dashboard() {
     const fetchChart = async () => {
       try {
         setLoadingChart(true);
-        const res = await api.get(`/admin/analytics/messages?days=${range}`);
+        const res = await api.get(`/api/admin/analytics/messages?days=${range}`);
         setChartData(res.data);
       } catch (err) {
         console.error(err);
@@ -55,8 +55,8 @@ export default function Dashboard() {
     const fetchLists = async () => {
       try {
         const [appsRes, projectsRes] = await Promise.all([
-          api.get("/admin/apps"),
-          api.get("/admin/projects"),
+          api.get("/api/admin/apps"),
+          api.get("/api/admin/projects"),
         ]);
   
         console.log("APPS RAW RESPONSE:", appsRes.data);
@@ -75,20 +75,20 @@ export default function Dashboard() {
   
   const deleteApp = async (id) => {
     if (!confirm("Delete this app?")) return;
-    await api.delete(`/admin/apps/${id}`);
+    await api.delete(`/api/admin/apps/${id}`);
     setApps(prev => prev.filter(a => a.id !== id));
   };
   
   const deleteProject = async (id) => {
     if (!confirm("Delete this project?")) return;
-    await api.delete(`/admin/projects/${id}`);
+    await api.delete(`/api/admin/projects/${id}`);
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
   // Export CSV safely
   const handleExportCSV = async () => {
     try {
-      const res = await api.get("/admin/export/messages/csv", {
+      const res = await api.get("/api/admin/export/messages/csv", {
         responseType: "blob",
       });
 

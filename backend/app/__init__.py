@@ -28,16 +28,13 @@ def create_app(config_object=Config):
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    CORS(app, resources={r"/api/*": {"origins": FRONTEND_URL}})
 
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
-    socketio.init_app(
-        app,
-        async_mode="threading",
-        cors_allowed_origins="*"
-    )
+    socketio.init_app(app, async_mode="threading", cors_allowed_origins=FRONTEND_URL)
     migrate = Migrate(app, db)
 
     with app.app_context():

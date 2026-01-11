@@ -1,0 +1,25 @@
+@admin_bp.route("/restore-all-deleted", methods=["POST"])
+@jwt_required_custom
+@roles_required("admin")
+def restore_all_deleted():
+    try:
+        # Restore all deleted projects
+        projects = Project.query.filter_by(is_deleted=True).all()
+        for p in projects:
+            p.is_deleted = False
+        
+        # Restore all deleted apps
+        apps = AppDownload.query.filter_by(is_deleted=True).all()
+        for a in apps:
+            a.is_deleted = False
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "restored_projects": len(projects),
+            "restored_apps": len(apps)
+        })
+    except Exception:
+        current_app.logger.exception("Failed to restore deleted items")
+        return jsonify({"error": "Internal server error"}), 500

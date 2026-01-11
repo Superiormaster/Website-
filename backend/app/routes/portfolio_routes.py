@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify, current_app, send_from_directory, url_for
-from ..extensions import db
-from ..models import Project, AppDownload
+from flask import Blueprint, request, jsonify, current_app, flash, send_from_directory
+import traceback
+from sqlalchemy import func
+from ..extensions import db, mail, socketio
+from ..models import Project, ContactMessage, AppDownload
 from ..utils.upload_utils import save_file
-from ..auth import require_api_key
 import os
 
 bp = Blueprint("portfolio", __name__)
@@ -28,7 +29,7 @@ def list_projects():
     if err:
         return err, status
     try:
-        projects = Project.query.order_by(Project.created_at.desc())
+        q = Project.query.order_by(Project.created_at.desc())
         pagination = q.paginate(page=page, per_page=per_page, error_out=False)
         items = [p.to_dict() for p in pagination.items]
         return jsonify({
@@ -41,42 +42,7 @@ def list_projects():
     except Exception as e:
         current_app.logger.exception("Failed to list projects")
         return jsonify({"error": "Internal server error"}), 500
-        
-# -----------------------------
-# CREATE NEW PROJECT (protected)
-# -----------------------------
-@bp.route("/", methods=["POST"])
-@require_api_key
-def create_project():
-    try:
-        title = request.form.get("title")
-        description = request.form.get("description")
-        live_url = request.form.get("live_url")
-        github_url = request.form.get("github_url")
-        image_file = request.files.get("image")
 
-        if not title:
-            return jsonify({"error": "Title is required"}), 400
-
-        filename = save_file(image_file) if image_file else None
-
-        project = Project(
-            title=title,
-            description=description,
-            image=filename,
-            live_url=live_url,
-            github_url=github_url
-        )
-
-        db.session.add(project)
-        db.session.commit()
-
-        return jsonify(project.to_dict()), 201
-
-    except Exception:
-        current_app.logger.exception("Failed to create project")
-        return jsonify({"error": "Internal server error"}), 500
-        
 # -----------------------------
 # GET APPS (paginated)
 # -----------------------------
@@ -99,52 +65,28 @@ def list_apps():
     except Exception:
         current_app.logger.exception("Failed to list apps")
         return jsonify({"error": "Internal server error"}), 500
-        
-# -----------------------------
-# CREATE APP ENTRY (protected)
-# -----------------------------
-@bp.route("/apps", methods=["POST"])
-@require_api_key
-def create_app_record():
-    try:
-        name = request.form.get("name")
-        description = request.form.get("description")
-        download_url = request.form.get("download_url")
-        web_url = request.form.get("web_url")
-        image_file = request.files.get("image")
-
-        if not name:
-            return jsonify({"error": "App name is required"}), 400
-
-        filename = save_file(image_file) if image_file else None
-
-        app_record = AppDownload(
-            name=name,
-            description=description,
-            image=filename,
-            download_url=download_url,
-            web_url=web_url
-        )
-
-        db.session.add(app_record)
-        db.session.commit()
-
-        return jsonify(app_record.to_dict()), 201
-
-    except Exception:
-        current_app.logger.exception("Failed to create app record")
-        return jsonify({"error": "Internal server error"}), 500
 
 # -----------------------------
-# SERVE UPLOADED FILES
-# -----------------------------
-@bp.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    upload_folder = current_app.config.get("UPLOAD_FOLDER")
-    if not upload_folder:
-        return jsonify({"error": "Upload folder not configured"}), 500
+@bp.route("/contact", methods=["POST"])
+def contact():
+    data = request.json
+    if not data.get("email") or not data.get("message"):
+        return jsonify({"error": "Email and message are required"}), 400
 
-    try:
-        return send_from_directory(upload_folder, filename)
-    except FileNotFoundError:
-        return jsonify({"error": "File not found"}), 404
+    msg = ContactMessage(
+        name=data.get("name"),
+        email=data.get("email"),
+        message=data.get("message")
+    )
+
+    db.session.add(msg)
+    db.session.commit()
+
+    # ✅ Emit AFTER commit
+    socketio.emit(
+        "new_message",
+        msg.to_dict(),
+        namespace="/admin"
+    )
+
+    return jsonify({"success": True}), 201

@@ -14,6 +14,6 @@ with app.app_context():
 
         db.session.add(admin)
         db.session.commit()
-        print(f"✅ Admin user created: {admin.username}, password: {password}")
+        print(f"✅ Admin user created: {admin.username}")
     else:
         print("⚠ Admin user already exists")

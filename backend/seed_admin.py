@@ -9,7 +9,7 @@ with app.app_context():
     if not AdminUser.query.filter_by(username="Superior Master").first():
         admin = AdminUser(
           username="Superior Master",
-          password=pbkdf2_sha256.hash("Chidera@2006")
+          password_hash=pbkdf2_sha256.hash("Chidera@2006")
         ) # change this immediately!
 
         db.session.add(admin)

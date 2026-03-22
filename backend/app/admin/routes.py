@@ -7,8 +7,7 @@ from datetime import datetime, timedelta
 from ..auth.jwt import generate_jwt, jwt_required_custom, roles_required, get_current_user_id, log_action
 from ..utils.upload_utils import save_file
 from functools import wraps
-from weasyprint import HTML
-import csv, pyotp
+import pyotp
 from io import StringIO
 
 admin_bp = Blueprint("admin", __name__)

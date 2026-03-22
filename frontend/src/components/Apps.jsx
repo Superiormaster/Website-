@@ -11,7 +11,7 @@ export default function Apps() {
   const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
 
   useEffect(() => {
-    API.get("/portfolio/apps")
+    API.get("/api/portfolio/apps")
       .then(res => {
         setApps(res.data.items ?? res.data);
         setLoading(false);
@@ -23,8 +23,8 @@ export default function Apps() {
   }, []);
 
   return (
-    <section id="apps" className="py-24 bg-gray-500 min-h-screen">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="apps" className="py-10 bg-gray-500 min-h-screen">
+      <div className="max-w-7xl px-6">
         <h2 className="text-center text-3xl font-bold md:text-4xl mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">My Mobile Apps</h2>
 
         {loading && (

@@ -1,19 +1,14 @@
 import api from "@/services/api"
 import AdminLayout from "../portfolio_admin/AdminLayout"
 import { useState, useContext, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { UserContext } from "@/portfolio_admin/UserContext"
 
 export default function Settings() {
   const { user } = useContext(UserContext)
   const [loading, setLoading] = useState(false)
   const [password, setPassword] = useState("")
-  const [twoFA, setTwoFA] = useState(user?.two_factor_enabled)
-
-  useEffect(() => {
-    if (user) {
-      setTwoFA(!!user.two_factor_enabled)
-    }
-  }, [user])
+  const navigate = useNavigate();
 
   // ⛔ Guard: wait until user exists
   if (!user) {
@@ -34,19 +29,6 @@ export default function Settings() {
       setPassword("")
     } catch {
       alert("Failed to update password")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const toggle2FA = async () => {
-    setLoading(true)
-    try {
-      await api.post("api/admin/settings/2fa/toggle")
-      setTwoFA(!twoFA)
-      alert("2FA updated")
-    } catch {
-      alert("Failed to update 2FA")
     } finally {
       setLoading(false)
     }
@@ -85,35 +67,34 @@ export default function Settings() {
               Update Password
             </button>
           </div>
-
-        {/*  <div className="flex items-center justify-between">
-            <span>Two-Factor Authentication</span>
-            <button
-              onClick={toggle2FA}
-              className={`px-4 py-2 rounded ${twoFA ? "bg-red-600" : "bg-green-600"}`}
-            >
-              {twoFA ? "Disable" : "Enable"}
-            </button>
-          </div>*/}
         </section>
 
         {/* Data */}
         <section className="bg-gray-900 p-6 rounded-xl border border-white/10 space-y-4">
           <h2 className="text-xl font-semibold">Data & Maintenance</h2>
 
-          <button
-            onClick={() => window.open("/admin/export/messages/csv")}
-            className="px-4 py-2 bg-emerald-600 rounded"
-          >
-            Export Messages (CSV)
-          </button>
-
-          <button
-            onClick={() => window.open("/admin/export/messages/pdf")}
+          <div className="md:flex md:justify-between grid gap-2">
+            <button
+              onClick={() => window.open("/admin/export/messages/csv")}
+              className="px-4 py-2 bg-emerald-600 rounded"
+            >
+              Export Messages (CSV)
+            </button>
+  
+            <button
+              onClick={() => window.open("/admin/export/messages/pdf")}
+              className="px-4 py-2 bg-indigo-600 rounded"
+            >
+              Export Messages (PDF)
+            </button>
+  
+            <button
+            onClick={() => navigate("/admin/trash")}
             className="px-4 py-2 bg-indigo-600 rounded"
           >
-            Export Messages (PDF)
+            Trash
           </button>
+          </div>
         </section>
 
         {/* Danger Zone */}

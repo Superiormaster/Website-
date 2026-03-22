@@ -1,11 +1,13 @@
 // src/components/Hero.jsx
 import { motion, useAnimation } from "framer-motion"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { MyImage } from '../assets'
 import { Link } from "react-router-dom"
+import LoadingScreen from "@/components/LoadingScreen"
 import Contact from "./section/Contact"
 
 export default function Hero() {
+  const [isLoaded, setIsLoaded] = useState(false)
   const controls = useAnimation()
   
   useEffect(() => {
@@ -14,6 +16,17 @@ export default function Hero() {
       transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
     })
   }, [controls])
+  
+  useEffect(() => {
+    // Fake loading for smooth UX (1.5s)
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!isLoaded) return <LoadingScreen />;
   
   return (
     <section className="bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-500 text-white py-8 px-2 min-h-screen">

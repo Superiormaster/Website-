@@ -1,18 +1,21 @@
-import { useEffect, useState } from "react";
-import api from "../services/api"; // your axios instance
-import AdminLayout from "../portfolio_admin/AdminLayout";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import api from "../services/api" // your axios instance
+import AdminLayout from "../portfolio_admin/AdminLayout"
 
 export default function DeletedItems() {
   const [projects, setProjects] = useState([]);
   const [apps, setApps] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [loadingApps, setLoadingApps] = useState(true);
+  const [message, setMessage] = useState("");
   const [tab, setTab] = useState("projects"); // "projects" or "apps"
+  const navigate = useNavigate();
 
   // Fetch deleted projects
   const fetchDeletedProjects = async () => {
     try {
-      const res = await api.get("/projects/deleted");
+      const res = await api.get("/admin/projects/deleted");
       setProjects(res.data);
     } catch (err) {
       console.error(err);
@@ -24,7 +27,7 @@ export default function DeletedItems() {
   // Fetch deleted apps
   const fetchDeletedApps = async () => {
     try {
-      const res = await api.get("/apps/deleted");
+      const res = await api.get("/admin/apps/deleted");
       setApps(res.data);
     } catch (err) {
       console.error(err);
@@ -41,23 +44,40 @@ export default function DeletedItems() {
   // Restore item
   const handleRestore = async (type, id) => {
     try {
-      await api.post(`/${type}/${id}/restore`);
+      await api.post(`/admin/${type}/${id}/restore`);
       if (type === "projects") {
         setProjects(projects.filter(p => p.id !== id));
       } else {
         setApps(apps.filter(a => a.id !== id));
       }
-      alert(`${type === "projects" ? "Project" : "App"} restored successfully!`);
+      setMessage(`${type === "projects" ? "Project" : "App"} restored successfully!`);
     } catch (err) {
       console.error(err);
-      alert(`Failed to restore ${type === "projects" ? "project" : "app"}.`);
+      setMessage(`Failed to restore ${type === "projects" ? "project" : "app"}.`);
+    }
+  };
+  
+  const permanentlyDelete = async (id) => {
+    if (!confirm("This action is irreversible. Continue?")) return;
+  
+    try {
+      await api.delete(`/admin/projects/${id}/force`);
+      setProjects(projects.filter(p => p.id !== id));
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to permanently delete project");
     }
   };
 
   return (
     <AdminLayout>
       <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Deleted Items</h1>
+        <h1 className="text-3xl font-bold mb-6">Deleted Items/Trash</h1>
+        {message && (
+          <div className="mb-4 p-3 rounded bg-green-600/20 text-green-400">
+            {message}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-4 mb-6">
@@ -96,6 +116,12 @@ export default function DeletedItems() {
                     >
                       Restore
                     </button>
+                    <button
+                      onClick={() => permanentlyDelete(p.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                    >
+                      Delete Forever
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -123,13 +149,25 @@ export default function DeletedItems() {
                     >
                       Restore
                     </button>
+                    <button
+                      onClick={() => permanentlyDelete(a.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded"
+                    >
+                      Delete Forever
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
           </>
         )}
-      </div>
+        </div>
+        <button
+          onClick={() => navigate("/admin")}
+          className="px-4 py-2 bg-gray-700 text-white rounded mb-4"
+        >
+          ← Back to Dashboard
+        </button>
     </AdminLayout>
   );
 }

@@ -8,14 +8,14 @@ import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
 import Portfolio from "./components/Portfolio"
 import Contact from "./components/section/Contact"
+import About from "./components/section/About"
 import Projects from "./components/section/Projects"
-import LoadingScreen from "./components/LoadingScreen"
 import ScrollToTop from "./components/ScrollToTop"
+import Login from "./pages/Login"
 
 function PublicApp() {
   const [projects, setProjects] = useState([])
   const [apps, setApps] = useState([])
-  const [isLoaded, setIsLoaded] = useState(false)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -28,23 +28,12 @@ function PublicApp() {
       .catch((e) => console.error("apps:", e));
   }, []);
 
-  useEffect(() => {
-    // Fake loading for smooth UX (1.5s)
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!isLoaded) return <LoadingScreen />;
-
   return (
     <>
       <ScrollToTop />
-      <div className="bg-black w-full overflow-hidden transition-opacity duration-700 min-h-screen text-gray-500">
-        <div className={`${styles.paddingX} bg-gray-50 dark:bg-gray-900 text-white ${styles.flexCenter}`}>
-          <div className={`${styles.boxWidth}`}>
+      <div className="bg-gray-900 w-full overflow-hidden transition-opacity duration-700 min-h-screen text-gray-500">
+        <div className={`bg-gray-50 dark:bg-gray-900 text-white`}>
+          <div>
             <Navbar open={open} setOpen={setOpen} />
 
             <Routes>
@@ -53,12 +42,13 @@ function PublicApp() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/apps" element={<Apps apps={apps} />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </div>
         </div>
 
-        <div className={`${styles.paddingX} ${styles.flexStart} text-gray-900 dark:text-gray-100`}>
-          <div className={`${styles.boxWidth}`}>
+        <div className={`text-gray-900 dark:text-gray-100`}>
+          <div>
             <Footer />
           </div>
         </div>

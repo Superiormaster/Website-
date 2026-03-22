@@ -1,9 +1,8 @@
 // src/components/Navbar.jsx
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { close, logo, head, menu } from '../assets'
+import { head } from '../assets'
 import { Link } from "react-router-dom"
-import { navLinks } from "../constants"
 
 export default function Navbar({ open, setOpen }) {
   const [showNav, setShowNav] = useState(false);
@@ -46,9 +45,9 @@ export default function Navbar({ open, setOpen }) {
           <li className="text-gray-300 hover:text-white transition-colors">
             <Link to="/portfolio">portfolio</Link>
           </li>
-          <li className="text-gray-300 hover:text-white transition-colors">
+         {/* <li className="text-gray-300 hover:text-white transition-colors">
             <Link to="/apps">Apps</Link>
-          </li>
+          </li>*/}
         </ul>
 
         {open && (
@@ -59,9 +58,9 @@ export default function Navbar({ open, setOpen }) {
             <li className="text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform">
               <Link to="/portfolio" onClick={closeMenu}>Portfolio</Link>
             </li>
-            <li className={`text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform`}>
+            {/*<li className={`text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform`}>
               <Link to="/apps" onClick={closeMenu}>Apps</Link>
-            </li>
+            </li>*/}
           </ul>
         )}
     </nav>
@@ -81,7 +80,7 @@ export default function Navbar({ open, setOpen }) {
           <ul className="flex gap-6 list-none sm:flex hidden justify-end items-center flex-1 md:flex text-white space-x-8 font-medium">
             <li><Link to="/">Home</Link></li>
             <li><Link to="/portfolio">Portfolio</Link></li>
-            <li><Link to="/apps">Apps</Link></li>
+            {/*<li><Link to="/apps">Apps</Link></li>*/}
           </ul>
           
           {open && (
@@ -92,9 +91,9 @@ export default function Navbar({ open, setOpen }) {
             <li className="text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform duration-300">
               <Link to="/portfolio"onClick={closeMenu}>Portfolio</Link>
             </li>
-            <li className="text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform duration-300">
+            {/*<li className="text-gray-300 transition-colors my-4 text-2xl font-semibold transform transition-transform duration-300">
               <Link to="/apps" onClick={closeMenu}>Apps</Link>
-            </li>
+            </li>*/}
           </ul>
         )}
         </nav>

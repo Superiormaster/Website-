@@ -25,7 +25,7 @@ export default function Login() {
       const decoded = jwtDecode(res.data.token);
       setUser(decoded);
 
-      navigate("api/admin");
+      navigate("/admin");
     } catch (err) {
       console.error(err);
       alert("Invalid username or password");

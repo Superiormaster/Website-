@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import api from "@/services/api"
 import StatCard from "@/dashboard-files/StatCard"
 import Skeleton from "@/dashboard-files/Skeleton"
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [activity, setActivity] = useState([]); 
   const [apps, setApps] = useState([]);
   const [projects, setProjects] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch dashboard counts and recent items
   useEffect(() => {
@@ -85,29 +87,6 @@ export default function Dashboard() {
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
-  // Export CSV safely
-  const handleExportCSV = async () => {
-    try {
-      const res = await api.get("/api/admin/export/messages/csv", {
-        responseType: "blob",
-      });
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-
-      link.setAttribute("download", "messages.csv");
-      document.body.appendChild(link);
-      link.click();
-
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to export CSV.");
-    }
-  };
-
   if (loadingStats || !stats?.counts) {
     return (
       <AdminLayout>
@@ -127,13 +106,16 @@ export default function Dashboard() {
           </h1>
           <p className="text-gray-400 text-sm mt-1">Overview of system activity and performance</p>
         </div>
+        <div className="flex justify-between">
+          <button onClick={() => navigate("/admin/projects")} className="bg-green-500 text-white px-4 py-2 rounded">+ Add project</button>
+          <button onClick={() => navigate("/admin/apps")} className="bg-green-500 text-white px-4 py-2 rounded">+ Add app</button>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 justify-center lg:grid-cols-4 gap-6">
           <StatCard title="Projects" value={stats.counts.projects} />
           <StatCard title="Apps" value={stats.counts.apps} />
           <StatCard title="Messages" value={stats.counts.messages} />
-          <StatCard title="Active Users" value={stats.counts.users ?? "—"} />
         </div>
 
         {/* Recent Projects */}
@@ -189,8 +171,7 @@ export default function Dashboard() {
             ))}
           </ul>
         </Section>
-        <p className="text-red-400">Apps count: {apps.length}</p>
-<p className="text-red-400">Projects count: {projects.length}</p>
+
         <Section title="All Projects">
           <ul className="space-y-4">
             {projects.map(p => (
@@ -235,13 +216,7 @@ export default function Dashboard() {
             )}
           </div>
         </Section>
-        {/* Export CSV */}
-        <button
-          onClick={handleExportCSV}
-          className="px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-500"
-        >
-          Export Messages CSV
-        </button>
+
       </div>
     </AdminLayout>
   );

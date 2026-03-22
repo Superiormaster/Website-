@@ -13,12 +13,12 @@ export default function Home() {
             
             <h1 className="text-5xl font-extrabold mb-6 bg-gradient-to-r leading-tight from-blue-500 to-purple-600 bg-clip-text text-transparent leading-relaxed md:text-6xl">
               I build{" "} 
-              <span className="text-cyan-300">Scalable</span> &{" "} <span className="text-cyan-300">Beautiful</span> Website, Weba
+              <span className="text-cyan-300">Scalable</span> &{" "} <span className="text-cyan-300">Beautiful</span> Website, Web
               App and Mobile Apps.
             </h1>
             
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="max-w-2xl mx-auto max-w-lg mt-6 text-lg text-indigo-100 mb-8">
-            I'm a focused Software Engineer who build high-performance web and mobile applications. Using HTML, CSS, JS, React.js, reactnative, Tailwindcss, Flask, Django and Python, I create products that are fast, responsive and visually clean.
+            I'm a focused Software Engineer who build high-performance web and mobile applications. Using HTML, CSS, JS, React.js, Nextjs, Tailwindcss, nodejs, Flask, Django and Python, I create products that are fast, responsive and visually clean.
           </motion.p>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="max-w-2xl mx-auto max-w-lg mt-6 text-lg mb-8 text-indigo-100">
               My work is driven by real-world problem solving—delivering exceptional performance and a delightful user experience without compromising functionality.

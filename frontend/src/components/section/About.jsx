@@ -1,9 +1,9 @@
-// src/c3omponents/About.jsx
+// src/components/About.jsx
 import RevealOnScroll from "../RevealOnScroll"
 
 export default function About() {
-  const frontendSkills = ["reactjs", "tailwindcss", "Javascript", "HTML", "CSS"];
-  const backendSkills = ["node.js", "python Flask API", "MongoDB", "FastAPI", "Django API"];
+  const frontendSkills = ["reactjs", "tailwindcss", "nextjs", "Javascript", "HTML", "CSS"];
+  const backendSkills = ["node.js", "python Flask API", "FastAPI", "Django API"];
 
   return (
     <section className="flex min-h-screen justify-center items-center text-white py-20 overflow-hidden">
@@ -44,11 +44,13 @@ export default function About() {
               <h3 className="mb-4 text-xl font-bold">Education</h3>
               <ul className="list-disc list-inside text-gray-300 space-y-2">
                 <li className="list-outside">
-                  <strong>Relevant Courseworks: Web development, App development</strong>
+                  <strong>Relevant Courseworks on: </strong>
                 </li>
+                <li className="list-none">Website development</li>
+                <li className="list-none">App development</li>
               </ul>
             </div>
-            <div className="p-6 rounded-xl border border-white/10 hover:-transparent-y-1 transition-all">
+            <div className="p-6 mt-2 rounded-xl border border-white/10 hover:-transparent-y-1 transition-all">
               <h3 className="mb-4 text-xl font-bold">Work Experiences</h3>
               <div className="space-y-4 text-gray-300">
                 <div className="">

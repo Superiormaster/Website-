@@ -4,6 +4,7 @@ import Dashboard from "../pages/Dashboard"
 import Projects from "../pages/Projects"
 import Messages from "../pages/Messages"
 import ProtectedRoute from "./ProtectedRoute"
+import DeletedItems from "../pages/DeletedItems"
 import Apps from "../pages/Apps"
 import Settings from "../pages/Settings"
 import { UserProvider } from "./UserContext"
@@ -62,6 +63,13 @@ export default function AdminApp() {
                       <Messages />
                     </ProtectedRoute>
                   }
+                />
+        
+                <Route path="/trash" element={
+                <ProtectedRoute>
+                  <DeletedItems />
+                </ProtectedRoute>
+                } 
                 />
         
                 <Route path="*" element={<Navigate to="/admin" replace />} />

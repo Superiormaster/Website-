@@ -16,9 +16,6 @@ import { UserContext } from "@/portfolio_admin/UserContext"
 
 export default function Sidebar({ isOpen, onClose }) {
   const { user } = useContext(UserContext);
-  const [dark, setDark] = useState(
-    localStorage.getItem("theme") === "dark"
-  )
 
   const links = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -26,12 +23,6 @@ export default function Sidebar({ isOpen, onClose }) {
     { name: "Messages", path: "/admin/messages", icon: MessageSquare },
     { name: "Apps", path: "/admin/apps", icon: Settings }
   ]
-
-  // Apply theme
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark)
-    localStorage.setItem("theme", dark ? "dark" : "light")
-  }, [dark])
 
   return (
     <aside
@@ -81,13 +72,6 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Footer */}
       <div className="mt-auto p-4 space-y-3 border-t border-white/10">
-        <button
-          onClick={() => setDark(!dark)}
-          className="flex items-center gap-2 px-4 py-2 w-full rounded hover:bg-zinc-800"
-        >
-          {dark ? <Sun size={18} /> : <Moon size={18} />}
-          {dark ? "Light Mode" : "Dark Mode"}
-        </button>
 
         <button
           onClick={logout}

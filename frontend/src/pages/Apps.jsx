@@ -9,10 +9,11 @@ export default function Apps() {
   const [downloadUrl, setDownloadUrl] = useState("");
   const [webUrl, setWebUrl] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
-  // Load recent apps from dashboard
+  // Load recent apps
   useEffect(() => {
-    api.get("/admin/dashboard")
+    api.get("/api/admin/dashboard")
       .then(res => setApps(res.data.recent_apps || []))
       .catch(err => console.error(err));
   }, []);
@@ -28,7 +29,7 @@ export default function Apps() {
     if (imageFile) form.append("image", imageFile);
 
     try {
-      const res = await api.post("/admin/apps", form, {
+      const res = await api.post("/api/admin/apps", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setApps([res.data, ...apps]);
@@ -37,28 +38,19 @@ export default function Apps() {
       setDownloadUrl("");
       setWebUrl("");
       setImageFile(null);
+      setPreview(null);
     } catch (err) {
       console.error(err);
       alert("Failed to create app");
     }
   };
 
-  const deleteApp = async (id) => {
-    try {
-      await api.delete(`/admin/apps/${id}`);
-      setApps(apps.filter(a => a.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete app");
-    }
-  };
-  
-  const [preview, setPreview] = useState(null);
-
   return (
     <AdminLayout>
-      <div className="bg-gray-900 overflow-hidden space-y-6 border border-rose-100 max-w-4xl mx-auto px-6 py-4 text-center">
-        <h1 className="text-4xl text-center font-bold font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">Apps</h1>
+      <div className="bg-gray-900 min-h-screen py-3 px-6 sm:px-12 lg:px-24 space-y-6">
+        <h1 className="text-5xl font-extrabold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">
+          Apps
+        </h1>
 
         {preview && (
           <img
@@ -67,39 +59,63 @@ export default function Apps() {
             className="w-full max-h-64 object-cover rounded-lg mb-4 border border-gray-700"
           />
         )}
-        <input className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
+
+        <input
+          className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
           placeholder="App name"
           value={name}
           onChange={e => setName(e.target.value)}
         />
-        <textarea className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border h-34 rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
+        <textarea
+          className="w-full mb-2 py-3 px-4 h-36 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
           placeholder="Description"
           value={description}
           onChange={e => setDescription(e.target.value)}
         />
-        <input className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
+        <input
+          className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
           placeholder="Download URL"
           value={downloadUrl}
           onChange={e => setDownloadUrl(e.target.value)}
         />
-        <input className="w-full mb-2 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
+        <input
+          className="w-full mb-4 py-3 px-4 border-white/10 bg-white/10 border rounded text-white transition focus:outline-none focus:bg-blue-500/5 focus:border-blue-500"
           placeholder="Web URL"
           value={webUrl}
           onChange={e => setWebUrl(e.target.value)}
         />
-        <div className="flex justify-center">
-          <input
-            type="file"
-            accept="image/*"
-            className="mb-4 px-6 block py-3 rounded border border-gray-600 text-white"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              setImageFile(file);
-              if (file) setPreview(URL.createObjectURL(file));
-            }}
-          />
+
+        {/* Image Upload with Plus Sign */}
+        <div className="flex justify-center mb-4">
+          <label className="w-32 h-32 flex items-center justify-center border-2 border-dashed border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 transition relative">
+            {preview ? (
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            ) : (
+              <span className="text-gray-400 text-4xl font-bold">+</span>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="absolute w-full h-full opacity-0 cursor-pointer"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setImageFile(file);
+                if (file) setPreview(URL.createObjectURL(file));
+              }}
+            />
+          </label>
         </div>
-        <button className="px-8 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition w-full relative font-medium overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(50,130,246,0.4)]" onClick={createApp}>Create App</button>
+
+        <button
+          className="w-full px-8 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:shadow-xl"
+          onClick={createApp}
+        >
+          Create App
+        </button>
       </div>
     </AdminLayout>
   );

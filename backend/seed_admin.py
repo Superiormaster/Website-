@@ -1,6 +1,7 @@
 from app import create_app
 from app.extensions import db
 from app.models import AdminUser
+from passlib.hash import pbkdf2_sha256
 
 app = create_app()
 

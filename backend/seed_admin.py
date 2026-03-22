@@ -6,10 +6,13 @@ app = create_app()
 
 with app.app_context():
     if not AdminUser.query.filter_by(username="Superior Master").first():
-        admin = AdminUser(username="Superior Master")
-        admin.set_password("Chidera@2006")  # change this immediately!
+        admin = AdminUser(
+          username="Superior Master",
+          password=pbkdf2_sha256.hash("Chidera@2006")
+        ) # change this immediately!
+
         db.session.add(admin)
         db.session.commit()
-        print("✅ Admin user created: ", admin.username, admin.password)
+        print(f"✅ Admin user created: {admin.username}, password: {password}")
     else:
         print("⚠ Admin user already exists")

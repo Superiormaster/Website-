@@ -39,17 +39,6 @@ def login():
         print("ERROR: User not found")
         return jsonify({"error": "Invalid credentials"}), 401
 
-    # ✅ 2FA only if enabled
-    if user.two_factor_enabled:
-        code = data.get("otp")
-        if not code:
-            return jsonify({"error": "OTP required", "requires_otp": True}), 400
-
-        totp = pyotp.TOTP(user.two_factor_secret)
-        if not totp.verify(code):
-            print("ERROR: Password mismatch")
-            return jsonify({"error": "Invalid OTP"}), 401
-
     token = generate_jwt(user)
     print("LOGIN SUCCESS")
     return jsonify({"token": token, "role": user.role})
@@ -70,30 +59,6 @@ def change_password():
     log_action("Changed password")
 
     return jsonify({"success": True})
-
-@admin_bp.route("/settings/2fa/toggle", methods=["POST"])
-@jwt_required_custom
-def toggle_2fa():
-    user = AdminUser.query.get(get_current_user_id())
-
-    if user.two_factor_enabled:
-        user.two_factor_enabled = False
-        user.two_factor_secret = None
-        action = "Disabled 2FA"
-    else:
-        secret = pyotp.random_base32()
-        user.two_factor_enabled = True
-        user.two_factor_secret = secret
-        action = "Enabled 2FA"
-
-    db.session.commit()
-    log_action(action)
-
-    return jsonify({
-        "success": True,
-        "two_factor_enabled": user.two_factor_enabled,
-        "secret": user.two_factor_secret if user.two_factor_enabled else None
-    })
 
 @admin_bp.route("/me", methods=["GET"])
 @jwt_required_custom
@@ -153,8 +118,10 @@ def create_app_record():
 @jwt_required_custom
 @roles_required("admin")
 def list_apps():
-    apps = AppDownload.query.filter_by(is_deleted=False).order_by(AppDownload.id.desc()).all()
-    return jsonify([a.to_dict() for a in apps])
+    apps = AppDownload.query.filter_by(is_deleted=True).order_by(AppDownload.created_at.desc()).all()
+    return jsonify({
+        "apps": [a.to_dict() for a in apps]
+    }), 200
 
 @admin_bp.route("/apps/<int:id>", methods=["DELETE"])
 @jwt_required_custom
@@ -232,18 +199,10 @@ def create_project():
 @jwt_required_custom
 @roles_required("admin")
 def list_projects():
-    projects = Project.query.filter_by(is_deleted=False).order_by(Project.id.desc()).all()
-    return jsonify([p.to_dict() for p in projects])
-
-@admin_bp.route("/debug/all-records", methods=["GET"])
-def debug_all_records():
-    projects = Project.query.order_by(Project.id.desc()).all()
-    apps = AppDownload.query.order_by(AppDownload.id.desc()).all()
-
+    projects = Project.query.filter_by(is_deleted=True).order_by(Project.created_at.desc()).all()
     return jsonify({
-        "projects": [{ "id": p.id, "title": p.title, "is_deleted": p.is_deleted } for p in projects],
-        "apps": [{ "id": a.id, "name": a.name, "is_deleted": a.is_deleted } for a in apps]
-    })
+        "projects": [p.to_dict() for p in projects]
+    }), 200
 
 @admin_bp.route("/projects/<int:id>", methods=["DELETE"])
 @jwt_required_custom
@@ -282,6 +241,24 @@ def deleted_projects():
     projects = Project.query.filter_by(is_deleted=True).all()
     return jsonify([p.to_dict() for p in projects])
 
+@admin_bp.route("/projects/<int:id>/force", methods=["DELETE"])
+@jwt_required_custom
+@roles_required("admin")
+def force_delete_project(id):
+    project = Project.query.get_or_404(id)
+    db.session.delete(project)
+    db.session.commit()
+    return {"message": "Project permanently deleted"}
+
+@admin_bp.route("/apps/<int:id>/force", methods=["DELETE"])
+@jwt_required_custom
+@roles_required("admin")
+def force_delete_app(id):
+    app = AppDownload.query.get_or_404(id)
+    db.session.delete(app)
+    db.session.commit()
+    return {"message": "App permanently deleted"}
+
 @admin_bp.route("/dashboard", methods=["GET"])
 @jwt_required_custom
 @roles_required("admin")
@@ -310,6 +287,15 @@ def dashboard_stats():
         .limit(5)
         .all()
     )
+    
+    messages = (
+        db.session.query(
+            func.date(ContactMessage.created_at),
+            func.count(ContactMessage.id)
+        )
+        .group_by(func.date(ContactMessage.created_at))
+        .all()
+    )
 
     return jsonify({
         "counts": {
@@ -319,7 +305,13 @@ def dashboard_stats():
         },
         "recent_projects": [p.to_dict() for p in recent_projects],
         "recent_apps": [a.to_dict() for a in recent_apps],
-        "recent_messages": [m.to_dict() for m in recent_messages]
+        "recent_messages": [m.to_dict() for m in recent_messages],
+
+        "analytics": {
+            "messages": [
+                {"date": str(d), "count": c} for d, c in messages
+            ]
+        },
     })
 
 @admin_bp.route("/export/messages/pdf")
@@ -334,22 +326,6 @@ def export_messages_pdf():
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = "attachment; filename=messages.pdf"
     return response
-
-@admin_bp.route("/export/messages/csv")
-@roles_required("admin")
-def export_messages_csv():
-    output = StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["Name", "Email", "Message"])
-
-    for m in ContactMessage.query.all():
-        writer.writerow([m.name, m.email, m.message])
-
-    return Response(
-        output.getvalue(),
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment;filename=messages.csv"}
-    )
 
 @admin_bp.route("/analytics/messages", methods=["GET"])
 @jwt_required_custom

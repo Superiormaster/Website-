@@ -32,8 +32,5 @@ class Config:
     # Allowed extensions for extra safety (upload_utils also checks)
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
-    # Admin API key (use a secure random value in production)
-    ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
-
     # App
     JSON_SORT_KEYS = False

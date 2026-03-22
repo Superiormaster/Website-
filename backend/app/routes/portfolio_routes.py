@@ -70,8 +70,9 @@ def list_apps():
 @bp.route("/contact", methods=["POST"])
 def contact():
     data = request.json
+
     if not data.get("email") or not data.get("message"):
-        return jsonify({"error": "Email and message are required"}), 400
+        return jsonify({"error": "Email and message required"}), 400
 
     msg = ContactMessage(
         name=data.get("name"),
@@ -82,7 +83,6 @@ def contact():
     db.session.add(msg)
     db.session.commit()
 
-    # ✅ Emit AFTER commit
     socketio.emit(
         "new_message",
         msg.to_dict(),

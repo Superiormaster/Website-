@@ -8,9 +8,7 @@ class AdminUser(db.Model):
     password_hash = db.Column(db.String(255), nullable=True)
     role = db.Column(db.String(20), default="admin")
     is_deleted = db.Column(db.Boolean, default=False)
-    two_factor_secret = db.Column(db.String(32))
     token_version = db.Column(db.Integer, default=0)
-    two_factor_enabled = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = pbkdf2_sha256.hash(password)
@@ -39,6 +37,7 @@ class Project(db.Model):
     live_url = db.Column(db.String(250))
     github_url = db.Column(db.String(250))
     is_deleted = db.Column(db.Boolean, default=False) 
+    deleted_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(
         db.DateTime,
@@ -64,7 +63,8 @@ class AppDownload(db.Model):
     description = db.Column(db.Text)
     image = db.Column(db.String(250))
     download_url = db.Column(db.String(250))
-    is_deleted = db.Column(db.Boolean, default=False) 
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
     web_url = db.Column(db.String(250))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(

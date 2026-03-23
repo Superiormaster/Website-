@@ -55,10 +55,9 @@ export default function Footer() {
           </a>
 
           <div className="flex gap-4 mt-4 text-lg">
-            <a href="#"><FaGithub /></a>
-            <a href="#"><FaLinkedin /></a>
-            <a href="#"><FaTwitter /></a>
-            <a href="#"><FaEnvelope /></a>
+            <a href="https://www.linkedin.com/in/ejezie-mary-johnpaul-439825320/?lipi=urn%3Ali%3Apage%3Ap_mwlite_my_network%3B5%2Fm%2BOiD7QMmMhA5UidXQcA%3D%3D"><FaLinkedin /></a>
+            <a href="https://x.com/SMprogra"><FaTwitter /></a>
+            <a href="mailto:ejeziepaschal@gmail.com"><FaEnvelope /></a>
           </div>
         </div>
 

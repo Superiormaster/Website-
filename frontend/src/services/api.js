@@ -22,10 +22,17 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token")
+    if (error.response) {
+      // Server responded with a status outside 2xx
+      console.error("Axios response error:", error.response.data);
+    } else if (error.request) {
+      // Request was made but no response
+      console.error("Axios no response:", error.request);
+    } else {
+      // Something else triggered error
+      console.error("Axios config error:", error.message);
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
 )
 

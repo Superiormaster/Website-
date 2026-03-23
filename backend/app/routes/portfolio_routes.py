@@ -1,9 +1,8 @@
-from flask import Blueprint, request, jsonify, current_app, flash, send_from_directory
+from flask import Blueprint, request, jsonify, current_app, flash
 import traceback
 from sqlalchemy import func
 from ..extensions import db, mail, socketio
 from ..models import Project, ContactMessage, AppDownload
-from ..utils.upload_utils import save_file
 import os
 
 bp = Blueprint("portfolio", __name__)
@@ -29,7 +28,7 @@ def list_projects():
     if err:
         return err, status
     try:
-        q = Project.query.order_by(Project.created_at.desc())
+        q = Project.query.filter_by(is_deleted=False).order_by(Project.created_at.desc())
         pagination = q.paginate(page=page, per_page=per_page, error_out=False)
         items = [p.to_dict() for p in pagination.items]
         return jsonify({
@@ -52,7 +51,7 @@ def list_apps():
     if err:
         return err, status
     try:
-        q = AppDownload.query.order_by(AppDownload.id.desc())
+        q = AppDownload.query.filter_by(is_deleted=False).order_by(AppDownload.created_at.desc())
         pagination = q.paginate(page=page, per_page=per_page, error_out=False)
         items = [a.to_dict() for a in pagination.items]
         return jsonify({

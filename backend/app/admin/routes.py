@@ -1,31 +1,18 @@
-from flask import Blueprint, request, jsonify, current_app, make_response, render_template, send_from_directory, Response
+from flask import Blueprint, request, jsonify, current_app, make_response, render_template, Response
 from ..extensions import db
 from passlib.hash import pbkdf2_sha256
 from ..models import AdminUser, Project, AppDownload, ContactMessage, AuditLog
 from sqlalchemy import func
 from datetime import datetime, timedelta
 from ..auth.jwt import generate_jwt, jwt_required_custom, roles_required, get_current_user_id, log_action
-from ..utils.upload_utils import save_file
 from functools import wraps
 import pyotp
+from ..utils.upload_utils import upload_image
 from io import StringIO
 
 admin_bp = Blueprint("admin", __name__)
 
 secret = pyotp.random_base32()
-# -----------------------------
-# SERVE UPLOADED FILES
-# -----------------------------
-@admin_bp.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    upload_folder = current_app.config.get("UPLOAD_FOLDER")
-    if not upload_folder:
-        return jsonify({"error": "Upload folder not configured"}), 500
-
-    try:
-        return send_from_directory(upload_folder, filename)
-    except FileNotFoundError:
-        return jsonify({"error": "File not found"}), 404
 
 @admin_bp.route("/login", methods=["POST"])
 def login():
@@ -94,12 +81,16 @@ def create_app_record():
         if not name:
             return jsonify({"error": "App name is required"}), 400
 
-        filename = save_file(image_file) if image_file else None
+        image_url = upload_image(
+            image_file,
+            folder="SuperiorNews/projects",
+            resize_max_height=900  # optional, keeps images proportional
+        ) if image_file else None
 
         app_record = AppDownload(
             name=name,
             description=description,
-            image=filename,
+            image=image_url,
             download_url=download_url,
             web_url=web_url
         )
@@ -117,7 +108,7 @@ def create_app_record():
 @jwt_required_custom
 @roles_required("admin")
 def list_apps():
-    apps = AppDownload.query.filter_by(is_deleted=True).order_by(AppDownload.created_at.desc()).all()
+    apps = AppDownload.query.filter_by().order_by(AppDownload.created_at.desc()).all()
     return jsonify({
         "apps": [a.to_dict() for a in apps]
     }), 200
@@ -175,12 +166,16 @@ def create_project():
         if not title:
             return jsonify({"error": "Title is required"}), 400
 
-        filename = save_file(image_file) if image_file else None
+        image_url = upload_image(
+            image_file,
+            folder="SuperiorNews/projects",
+            resize_max_height=900  # optional, keeps images proportional
+        ) if image_file else None
 
         project = Project(
             title=title,
             description=description,
-            image=filename,
+            image=image_url,
             live_url=live_url,
             github_url=github_url
         )
@@ -192,13 +187,13 @@ def create_project():
 
     except Exception:
         current_app.logger.exception("Failed to create project")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": str(e)}), 500
 
 @admin_bp.route("/projects", methods=["GET"])
 @jwt_required_custom
 @roles_required("admin")
 def list_projects():
-    projects = Project.query.filter_by(is_deleted=True).order_by(Project.created_at.desc()).all()
+    projects = Project.query.filter_by().order_by(Project.created_at.desc()).all()
     return jsonify({
         "projects": [p.to_dict() for p in projects]
     }), 200

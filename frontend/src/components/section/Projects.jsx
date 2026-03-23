@@ -37,7 +37,7 @@ export default function Projects() {
             <div key={p.id} className=" rounded-xl shadow hover:shadow-lg transition border border-white/10 p-6 rounded-xl hover:border-blue-500/30 hover:-transparent-y-1 hover:shadow[0_2px_8px_rgba(59, 136, 246, 0.2)] transition">
               <div className="flex justify-center">
                 <img
-                  src={`${BASE_URL}/api/admin/uploads/${p.image}`}
+                  src={p.image}
                   alt={p.title}
                   className="w-full h-20 object-cover rounded-t-2xl mb-4"
                 />

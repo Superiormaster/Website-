@@ -5,7 +5,8 @@ from flask_jwt_extended import (
     get_jwt_identity, get_jwt,
     verify_jwt_in_request
 )
-from ..models import AdminUser
+from ..extensions import db
+from ..models import AdminUser, AuditLog
 
 def roles_required(*roles):
     """
